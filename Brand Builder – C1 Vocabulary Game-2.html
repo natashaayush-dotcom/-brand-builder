@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brand Builder – C1 Vocabulary Game</title>
+<style>
+:root{--bg:#f6f3ee;--card:#fff;--tx:#1d1b2e;--mu:#6b6880;--ac:#5b3df5;--ok:#1a9a5b;--bad:#d93a4a;--bd:#e3dfd6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14131f;--card:#1e1c2e;--tx:#f0eefc;--mu:#a09cb8;--ac:#8d78ff;--ok:#3ccf88;--bad:#ff6b78;--bd:#33304a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14131f;--card:#1e1c2e;--tx:#f0eefc;--mu:#a09cb8;--ac:#8d78ff;--ok:#3ccf88;--bad:#ff6b78;--bd:#33304a;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100%;padding:16px}
+main{max-width:640px;margin:0 auto}
+h1{font-size:1.7rem;margin:.2em 0}h2{margin:.2em 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px;margin:12px 0}
+.mu{color:var(--mu)}
+button{font:inherit;cursor:pointer;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:12px 16px}
+button.pri{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:600}
+.opt{display:block;width:100%;text-align:left;margin:8px 0}
+.opt:hover:not(:disabled){border-color:var(--ac)}
+.opt.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.opt.no{background:var(--bad);color:#fff;border-color:var(--bad)}
+.hud{display:flex;justify-content:space-between;gap:8px;font-weight:600;flex-wrap:wrap}
+.bar{height:6px;background:var(--bd);border-radius:6px;overflow:hidden;margin:10px 0}
+.bar i{display:block;height:100%;background:var(--ac);width:100%;transition:width 1s linear}
+.tag{display:inline-block;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ac);font-weight:700}
+.q{font-size:1.2rem;margin:.4em 0 .6em}
+u{text-decoration-color:var(--bad);text-decoration-thickness:2px}
+.fb{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--bd)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.sc{border-bottom:1px solid var(--bd);padding:10px 0;cursor:pointer}
+.sc:last-child{border:0}.sc b{color:var(--ac)}
+.hide{display:none}
+</style></head>
+<body><main id="app"></main>
+<script>
+const $=s=>document.querySelector(s),A=$('#app');
+const sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+// [phrase, ukr, english definition]
+const T=[
+["align actions with goals","узгоджувати дії з цілями","make sure what you do matches what you want to achieve"],
+["build up trust","поступово зміцнювати довіру","gradually convince people you're reliable"],
+["communicate your value","демонструвати свою цінність","show or explain what you can offer"],
+["create a narrative","створювати історію про себе","tell a story about yourself or something"],
+["cultivate connections","плекати професійні зв'язки","develop professional relationships"],
+["differentiate yourself","виділятися, підкреслити унікальність","stand out and be noticed"],
+["establish your brand","чітко позиціонувати бренд","make it clear who you are and what you represent"],
+["shape your reputation","формувати репутацію","influence the opinion people have of you over time"],
+["stand out","виділятися з натовпу","be easily noticed because you are different or better"],
+["dig deeper into","заглиблюватися в суть","analyse something more thoroughly"],
+["figure out your goals","з'ясувати свої цілі","work out or decide what you want to achieve"],
+["look someone up","шукати інформацію про когось","search for information about a person online"],
+["lead with","ставити на перший план","put something first when presenting yourself"],
+["personal brand","особистий бренд","the image and impression people have of you professionally"],
+["reputational narrative","репутаційний наратив","the story about you built by every action or post"],
+["target audience","цільова аудиторія","the specific group of people you want to reach"],
+["mission statement","заява про місію","a short statement of your purpose and what you stand for"],
+["be at a professional disadvantage","бути в невигідному становищі","be in a weaker position than others at work"],
+["provide value to others","створювати користь для інших","give people something genuinely useful"],
+["resonate with someone","знаходити відгук у когось","feel meaningful or relevant to someone"],
+["be stumped","зайти в глухий кут","be unable to answer or find a solution"]
+];
+// [sentence, correct, wrongs, kind]
+const G=[
+["It takes consistency to ___ with a sceptical audience.","build up trust",["build on trust","make trust","raise trust"],"gap"],
+["Every post you publish helps ___ over time.","shape your reputation",["make your reputation","draw your reputation","fix your reputation"],"gap"],
+["Instead of just attending events, she set out to ___ in her field.","cultivate connections",["breed connections","grow up connections","farm connections"],"gap"],
+["In a saturated market you must ___ or risk being overlooked.","differentiate yourself",["differ yourself","difference yourself","diversify yourself"],"gap"],
+["Before posting, make sure you ___ your long-term goals.","align your actions with",["align your actions to","align your actions for","align your actions by"],"gap"],
+["Rather than listing job titles, ___ that makes people remember you.","create a narrative",["invent a narrative","draw a narrative","produce narrate"],"gap"],
+["Don't just list skills; ___ by showing the results you deliver.","communicate your value",["communicate your values","transmit your value","report your value"],"gap"],
+["A consistent website and LinkedIn profile help you ___ in the marketplace.","establish your brand",["found your brand","stabilise your brand","set up brand"],"gap"],
+["If you ignore what Google says about you, you'll ___.","be at a professional disadvantage",["be in a professional disadvantage","have professional disadvantaged","stay at disadvantage professional"],"gap"],
+["Recruiters will ___ before the interview, so check your profile.","look you up on Google",["look up you on Google","look for you up Google","look you after Google"],"gap"],
+["When asked about my biggest weakness, I was completely ___.","stumped",["stomped","stuck out","stunned out"],"gap"],
+["Good mentors ___ by sharing contacts and honest advice.","provide value to others",["provide values for others","offer value on others","supply value at others"],"gap"],
+["Her message really ___ with the younger audience.","resonated",["resounded at","responded","reflected"],"gap"],
+["In your intro, ___ your strongest achievement.","lead with",["lead by","lead on","lead to"],"gap"],
+["Don't just skim the surface; ___ the data.","dig deeper into",["dig deep at","dig further to","drill up"],"gap"],
+["He worked hard to <u>build on trust</u> with his team.","build up trust",["make trust","build trust at","build in trust"],"fix"],
+["You need to <u>differ yourself</u> from other candidates.","differentiate yourself",["differentiate for yourself","differ from yourself","be differ yourself"],"fix"],
+["Make sure your posts <u>align to</u> your long-term goals.","align with",["align by","align at","align of"],"fix"],
+["She <u>breeds connections</u> at every conference.","cultivates connections",["grows up connections","raises connections","feeds connections"],"fix"],
+["I'd like to <u>invent a narrative</u> around my career change.","create a narrative",["create narrative of","do a narrative","make narrate"],"fix"],
+["Consistency helps <u>make reputation</u> over time.","shape your reputation",["made a reputation","make up reputation","shape a reputation to"],"fix"]
+];
+const L={gap:"Fill the gap",fix:"Spot & fix the error",def:"Which phrase matches the definition?",uk:"Choose the English equivalent"};
+let S;
+function mk(){
+ const g=sh(G),gs=g.filter(x=>x[3]=='gap').slice(0,5),fx=g.filter(x=>x[3]=='fix').slice(0,3);
+ const o=(t,k)=>({k,q:k=='def'?t[2]:t[1],a:t[0],o:sh([t[0],...sh(T.filter(x=>x!==t)).slice(0,3).map(x=>x[0])]),h:t[0]+' — '+t[1]});
+ const ts=sh(T);
+ const ex=x=>({k:x[3],q:x[0],a:x[1],o:sh([x[1],...x[2]]),h:x[1]});
+ return sh([...gs.map(ex),...fx.map(ex),...ts.slice(0,2).map(t=>o(t,'def')),...ts.slice(2,4).map(t=>o(t,'uk'))]);
+}
+function home(){
+ A.innerHTML=`<h1>🎯 Brand Builder</h1><p class="mu">C1 · Personal branding vocabulary. Collocations, phrasal verbs and key terms in 12 rounds.</p>
+ <div class="card"><b>Rules</b><br>3 lives ❤️ · 20 s per question · +10 points, +2 per streak step (max +10), +speed bonus.<br>Watch the prepositions: <i>build <u>up</u> trust, align <u>with</u> goals</i>.</div>
+ <div class="row"><button class="pri" id="go">▶ Play</button><button id="st">📚 Study first</button></div>`;
+ $('#go').onclick=start;$('#st').onclick=study;
+}
+function study(){
+ A.innerHTML=`<h2>📚 Study</h2><p class="mu">Tap an item to see the Ukrainian translation and definition.</p><div class="card">`+
+ T.map(t=>`<div class="sc"><b>${t[0]}</b><div class="hide mu">${t[1]}<br><i>${t[2]}</i></div></div>`).join('')+`</div><button class="pri" id="go">▶ Play</button> <button id="bk">Back</button>`;
+ A.querySelectorAll('.sc').forEach(e=>e.onclick=()=>e.lastElementChild.classList.toggle('hide'));
+ $('#go').onclick=start;$('#bk').onclick=home;
+}
+function start(){S={qs:mk(),i:0,lives:3,sc:0,st:0,miss:[],t:20,ans:false};show()}
+function show(){
+ clearInterval(S.tm);
+ if(S.i>=S.qs.length||S.lives<=0)return end();
+ const q=S.qs[S.i];S.t=20;S.ans=false;
+ A.innerHTML=`<div class="hud"><span>${'❤️'.repeat(S.lives)||'💔'}</span><span>${S.i+1}/${S.qs.length}</span><span>⭐ ${S.sc} · 🔥 ${S.st}</span></div>
+ <div class="bar"><i id="tb"></i></div>
+ <div class="card"><span class="tag">${L[q.k]}</span><p class="q">${q.q}</p><div id="os"></div><div id="fb"></div></div>`;
+ const os=$('#os');
+ q.o.forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.onclick=()=>pick(b,t);os.appendChild(b)});
+ requestAnimationFrame(()=>{$('#tb').style.width='0%';$('#tb').style.transitionDuration='20s'});
+ S.tm=setInterval(()=>{if(--S.t<=0)pick(null,null)},1000);
+}
+function pick(b,t){
+ if(S.ans)return;S.ans=true;clearInterval(S.tm);
+ const q=S.qs[S.i],ok=t===q.a;let msg;
+ document.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(x.textContent===q.a)x.classList.add('ok')});
+ if(ok){S.st++;const p=10+Math.min(S.st-1,5)*2+Math.floor(S.t/4);S.sc+=p;msg=`✅ +${p} · <b>${q.h}</b>`}
+ else{if(b)b.classList.add('no');S.st=0;S.lives--;S.miss.push(q);msg=`${t===null?'⏰ Time is up.':'❌ Not quite.'} Correct: <b>${q.h}</b>`}
+ $('#fb').innerHTML=`<div class="fb">${msg}</div><p><button class="pri" id="nx">Next →</button></p>`;
+ $('#nx').onclick=()=>{S.i++;show()};
+}
+function end(){
+ const r=S.sc<120?'Junior Networker':S.sc<200?'Rising Voice':S.sc<270?'Brand Strategist':'Thought Leader';
+ const win=S.lives>0;
+ A.innerHTML=`<h1>${win?'🏆 Finished!':'💔 Out of lives'}</h1>
+ <div class="card"><h2>${S.sc} points</h2><p>Rank: <b>${r}</b></p></div>
+ ${S.miss.length?`<div class="card"><b>Review these:</b>`+S.miss.map(m=>`<div class="sc">${m.h}</div>`).join('')+`</div>`:'<p>Flawless run! 🔥</p>'}
+ <div class="row"><button class="pri" id="go">↻ Play again</button><button id="st">📚 Study</button></div>`;
+ $('#go').onclick=start;$('#st').onclick=study;
+}
+home();
+</script></body></html>
